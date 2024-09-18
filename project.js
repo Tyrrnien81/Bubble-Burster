@@ -24,7 +24,6 @@ function Balls(x, y, radius, color, active) { //Ball Setting
 	this.radius = radius;
 	this.color = color;
 	this.attive = active;
-
 }
 
 function Ballfilling() { //Making Ball
@@ -97,7 +96,6 @@ function drawing() { //Drawing bubbles
 		if (cburst + cescaped == 100) {
 			document.getElementById('output').innerHTML = 'Game Over, your hit percentage was ' + cburst / 100 * 100 + '%';
 		}
-
 	}
 }
 
@@ -108,7 +106,6 @@ function randomBubble() { //Place the bubble radomly
 	while (ballA[i].active == true) {
 		i = Math.floor(Math.random() * 100);
 	}
-
 	ballA[i].active = true;
 	celapsed++
 }
