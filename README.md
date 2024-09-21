@@ -1,4 +1,4 @@
-# Bubble-Buster
+# Bubble Buster
 Project Overview
 -----------------------------------------
 This project involves creating a simple graphical game using HTML5 Canvas, where users burst bubbles that fall vertically. The goal is to implement a game where the player controls a paddle to cut through and pop bubbles as they fall from the top of the screen. The game ends when all bubbles either hit the bottom or are burst by the paddle.
