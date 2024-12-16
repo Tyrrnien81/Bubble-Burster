@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Bubble Burster</title>
+        <link rel="stylesheet" href="css/styles.css" />
+    </head>
+
+    <body>
+        <div class="game-container">
+            <h2 class="game-title">Bubble Burster</h2>
+            <div class="canvas-container">
+                <canvas id="myCanvas" width="450" height="300">
+                    Your browser does not support the canvas element.
+                </canvas>
+            </div>
+
+            <div class="controls">
+                <button
+                    class="control-button"
+                    onmousedown="moveLeft();"
+                    onmouseup="stopMove();"
+                >
+                    LEFT
+                </button>
+                <button
+                    class="control-button"
+                    onmousedown="moveRight();"
+                    onmouseup="stopMove();"
+                >
+                    RIGHT
+                </button>
+            </div>
+
+            <div class="difficulty-controls">
+                <input
+                    type="radio"
+                    name="difficulty"
+                    value="easy"
+                    onclick="check(this.value);"
+                    checked
+                />
+                <label>Easy</label>
+                <input
+                    type="radio"
+                    name="difficulty"
+                    value="moderate"
+                    onclick="check(this.value)"
+                />
+                <label>Moderate</label>
+                <input
+                    type="radio"
+                    name="difficulty"
+                    value="hard"
+                    onclick="check(this.value)"
+                />
+                <label>Hard</label>
+            </div>
+
+            <p>Select difficulty level to start playing</p>
+
+            <div class="game-stats">
+                <span id="burst">Burst: 0</span>
+                <span id="escaped">Escaped: 0</span>
+                <span id="steps">Steps elapsed: 0</span>
+            </div>
+
+            <h3 id="output"></h3>
+        </div>
+        <!-- 스크립트를 body 끝에 배치 -->
+        <script type="text/javascript" src="js/app.js"></script>
+        <script>
+            // 페이지 로드 시 게임 시작
+            window.addEventListener("load", startGame);
+        </script>
+    </body>
+</html>
