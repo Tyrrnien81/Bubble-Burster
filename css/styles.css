@@ -166,10 +166,8 @@ body {
 
 /* Credits Button and Modal Styles */
 .credits-button {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
+    position: static; /* Override previous fixed positioning */
+    transform: none; /* Remove previous transform */
     background: #3498db;
     color: white;
     border: none;
@@ -179,6 +177,7 @@ body {
     transition: background 0.3s;
     font-size: 1em;
     z-index: 100;
+    margin-bottom: 5px; /* Add space between button and copyright */
 }
 
 .credits-button:hover {
@@ -243,10 +242,40 @@ body {
     padding: 5px 0;
 }
 
+/* Footer Container Styles */
+.footer-container {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column; /* Changed to column layout */
+    align-items: center; /* Center align items */
+    gap: 10px; /* Reduced gap between elements */
+    z-index: 100;
+}
+
+.copyright-text {
+    color: #2c3e50;
+    font-size: 0.9em;
+    text-align: center; /* Center align text */
+}
+
 /* Responsive design for modal */
 @media (max-width: 768px) {
     .modal-content {
         width: 90%;
         margin: 20% auto;
+    }
+}
+
+/* Responsive design for footer */
+@media (max-width: 768px) {
+    .footer-container {
+        bottom: 10px;
+    }
+
+    .copyright-text {
+        font-size: 0.8em;
     }
 }
