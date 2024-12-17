@@ -34,9 +34,8 @@ Bubble Burster is an engaging arcade-style game where players control a paddle t
 1. Use LEFT/RIGHT arrow keys or on-screen buttons to move the paddle
 2. Catch falling bubbles with the paddle to burst them
 3. Choose difficulty level to start playing
-4. Press 'P' to pause/resume the game
-5. Control music and volume using audio controls
-6. Try to achieve the highest burst percentage
+4. Control music and volume using audio controls
+5. Try to achieve the highest burst percentage
 
 ## 🛠️ Technical Stack
 
@@ -59,21 +58,26 @@ Background Music:
 
 ## 📱 Browser Support
 
-Chrome (recommended)
-Firefox
-Safari
-Edge
-📝 License
+-   Chrome (recommended)
+-   Firefox
+-   Safari
+-   Edge
+
+## 📝 License
+
 This project is licensed under the MIT License - see the LICENSE file for details
 
-🤝 Contributing
-Fork the repository
-Create your feature branch
-Commit your changes
-Push to the branch
-Create a Pull Request
-✍️ Author
-Your Name
+## 🤝 Contributing
 
-GitHub: @yourusername
-Email: your.email@example.com
+1. Fork the repository
+2. Create your feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
+
+## ✍️ Author
+
+Leo Jeong
+
+-   GitHub: @tyrrnien81
+-   Email: june121284@gmail.com
