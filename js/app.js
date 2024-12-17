@@ -137,14 +137,14 @@ class Game {
         if (!this.isRunning) {
             this.isRunning = true;
             this.gameState = GAME_CONFIG.gameStates.PLAYING;
-            this.animate();
+            this.lastTime = performance.now(); // lastTime 초기화
+            requestAnimationFrame(this.animate.bind(this)); // 애니메이션 루프 시작
         }
     }
 
     stop() {
         if (this.isRunning) {
             this.isRunning = false;
-            clearInterval(this.gameLoop);
             this.audioManager.stopBgMusic(); // Stop background music when game stops
         }
     }
@@ -174,14 +174,12 @@ class Game {
         this.frameCount++;
 
         // Increase step every stepInterval frames
-        if (this.frameCount % GAME_CONFIG.stepInterval === 0) {
-            this.stats.steps++;
-        }
+        this.stats.steps += deltaTime / 1000;
 
         this.updatePaddle();
         this.clearScreen();
         this.drawPaddle();
-        this.spawnBalls();
+        this.spawnBalls(deltaTime);
         this.updateBalls(deltaTime);
         this.updateStats();
     }
@@ -214,27 +212,21 @@ class Game {
         );
     }
 
-    spawnBalls() {
+    spawnBalls(deltaTime) {
         // Set spawn rate by difficulty
         const spawnRate = {
-            easy: 150, // Increased spawn interval
-            moderate: 120,
-            hard: 100,
+            easy: 2500, // 밀리초 단위
+            moderate: 2000,
+            hard: 1500,
         };
 
+        this.spawnTimer = (this.spawnTimer || 0) + deltaTime;
         const rate = spawnRate[this.difficulty];
 
         // Ball spawn logic
-        if (this.frameCount % rate === 0) {
-            const count = {
-                easy: 1,
-                moderate: 1,
-                hard: 1,
-            };
-
-            for (let i = 0; i < count[this.difficulty]; i++) {
-                this.activateRandomBall();
-            }
+        if (this.spawnTimer >= rate) {
+            this.activateRandomBall();
+            this.spawnTimer = 0;
         }
     }
 
