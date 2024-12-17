@@ -1,6 +1,7 @@
 # Bubble Burster
 
 A browser-based arcade game where players burst bubbles using a paddle, built with vanilla JavaScript and HTML5 Canvas.
+Live Demo: [Play Now](https://tyrrnien81.github.io/Bubble-Burster/)
 
 ## 🎮 Game Overview
 
