@@ -1,50 +1,46 @@
 const GAME_CONFIG = {
-    // Visual configuration
+    // Core visual settings
     canvasColor: "#EAEDDC",
     paddleWidth: {
-        easy: 70, // Wider paddle for beginners
-        moderate: 50, // Standard width
-        hard: 40, // Narrow paddle for experts
+        easy: 70,
+        moderate: 50,
+        hard: 40,
     },
     paddleHeight: 10,
     paddleColor: "#3498db",
+
+    // Ball configuration
     ballRadius: 10,
-    maxBalls: 100, // Increased maximum number of balls
-    speedX: 5,
+    maxBalls: 100, // Maximum number of balls in play
+    speedX: 5, // Horizontal movement speed
     ballSpeed: {
-        easy: 0.5, // Reduced speed
-        moderate: 1,
-        hard: 1.2,
+        easy: 1, // Reduced speed for better control
+        moderate: 1, // Standard speed
+        hard: 1.1, // Enhanced speed for challenge
     },
-    stepInterval: 30, // Step counter interval
+
+    // Game mechanics
+    stepInterval: 30, // Interval for step counter updates
+
+    // Game state management
     gameStates: {
-        INITIALIZING: "initializing",
+        MENU: "menu",
         PLAYING: "playing",
         PAUSED: "paused",
         GAME_OVER: "gameOver",
-    },
-    // Scoring system configuration
-    scoreSystem: {
-        easy: 10, // Base points for easy mode
-        moderate: 20, // Increased points for moderate
-        hard: 30, // Maximum points for hard mode
     },
 };
 
 class Game {
     constructor() {
-        // Initialize core game components
         this.canvas = document.getElementById("myCanvas");
         this.context = this.canvas.getContext("2d");
-
-        // Game state tracking
         this.balls = [];
         this.stats = {
-            burst: 0, // Successfully hit balls
-            escaped: 0, // Missed balls
-            steps: 0, // Game progression
+            burst: 0,
+            escaped: 0,
+            steps: 0,
         };
-
         this.paddle = {
             x: 200,
             speed: 0,
@@ -52,26 +48,17 @@ class Game {
         this.difficulty = "easy";
         this.isRunning = false;
         this.gameLoop = null;
-        this.gameState = GAME_CONFIG.gameStates.PLAYING;
+        this.gameState = GAME_CONFIG.gameStates.MENU;
         this.lastTime = 0;
         this.frameCount = 0; // Add frame counter
-        this.score = 0;
-        this.highScore = 0;
-        this.audioManager = new AudioManager(); // Add audio manager
-        this.musicStarted = false; // Add music start state
+        this.particleSystem = new ParticleSystem(this.context); // Add particle system
         this.setupEventListeners();
-        this.initialize(); // 생성자에서 초기화 호출
+        this.initialize(); // Initialize from constructor
     }
 
     setupEventListeners() {
         // Add keyboard controls
         window.addEventListener("keydown", (e) => {
-            // Start music on first key input
-            if (!this.musicStarted) {
-                this.audioManager.startBgMusic();
-                this.musicStarted = true;
-            }
-
             switch (e.key) {
                 case "ArrowLeft":
                     this.paddle.speed = -GAME_CONFIG.speedX;
@@ -82,14 +69,6 @@ class Game {
                 case "p":
                     this.togglePause();
                     break;
-            }
-        });
-
-        // Start music on click/touch as well
-        this.canvas.addEventListener("click", () => {
-            if (!this.musicStarted) {
-                this.audioManager.startBgMusic();
-                this.musicStarted = true;
             }
         });
 
@@ -104,21 +83,19 @@ class Game {
         if (this.gameState === GAME_CONFIG.gameStates.PLAYING) {
             this.gameState = GAME_CONFIG.gameStates.PAUSED;
             this.stop();
-            this.audioManager.stopBgMusic(); // Stop background music on pause
         } else if (this.gameState === GAME_CONFIG.gameStates.PAUSED) {
             this.gameState = GAME_CONFIG.gameStates.PLAYING;
             this.start();
-            this.audioManager.startBgMusic(); // Resume background music
         }
     }
 
     initialize() {
         this.createBalls();
-        this.start(); // 게임 자동 시작
+        this.start(); // Auto-start game
     }
 
     createBalls() {
-        this.balls = []; // 기존 공 배열 초기화
+        this.balls = []; // Reset ball array
         for (let i = 0; i < GAME_CONFIG.maxBalls; i++) {
             const color = `rgb(${(Math.random() * 256) | 0},${
                 (Math.random() * 256) | 0
@@ -137,15 +114,14 @@ class Game {
         if (!this.isRunning) {
             this.isRunning = true;
             this.gameState = GAME_CONFIG.gameStates.PLAYING;
-            this.lastTime = performance.now(); // lastTime 초기화
-            requestAnimationFrame(this.animate.bind(this)); // 애니메이션 루프 시작
+            this.animate();
         }
     }
 
     stop() {
         if (this.isRunning) {
             this.isRunning = false;
-            this.audioManager.stopBgMusic(); // Stop background music when game stops
+            clearInterval(this.gameLoop);
         }
     }
 
@@ -156,7 +132,6 @@ class Game {
         this.updateStats();
         document.getElementById("output").innerHTML = "";
         this.start();
-        this.audioManager.startBgMusic(); // Restart background music on reset
     }
 
     animate(currentTime = 0) {
@@ -174,13 +149,17 @@ class Game {
         this.frameCount++;
 
         // Increase step every stepInterval frames
-        this.stats.steps += deltaTime / 1000;
+        if (this.frameCount % GAME_CONFIG.stepInterval === 0) {
+            this.stats.steps++;
+        }
 
         this.updatePaddle();
         this.clearScreen();
         this.drawPaddle();
-        this.spawnBalls(deltaTime);
+        this.spawnBalls();
         this.updateBalls(deltaTime);
+        this.particleSystem.update(); // Update particle system
+        this.particleSystem.draw(); // Draw particle system
         this.updateStats();
     }
 
@@ -212,21 +191,27 @@ class Game {
         );
     }
 
-    spawnBalls(deltaTime) {
-        // Set spawn rate by difficulty
+    spawnBalls() {
+        // Set spawn rate by difficulty level
         const spawnRate = {
-            easy: 2500, // 밀리초 단위
-            moderate: 2000,
-            hard: 1500,
+            easy: 150, // Increase spawn interval
+            moderate: 120,
+            hard: 100,
         };
 
-        this.spawnTimer = (this.spawnTimer || 0) + deltaTime;
         const rate = spawnRate[this.difficulty];
 
-        // Ball spawn logic
-        if (this.spawnTimer >= rate) {
-            this.activateRandomBall();
-            this.spawnTimer = 0;
+        // Generate balls based on frame counter
+        if (this.frameCount % rate === 0) {
+            const count = {
+                easy: 1,
+                moderate: 1,
+                hard: 1,
+            };
+
+            for (let i = 0; i < count[this.difficulty]; i++) {
+                this.activateRandomBall();
+            }
         }
     }
 
@@ -248,6 +233,7 @@ class Game {
     }
 
     updateBalls(deltaTime) {
+        // Modify speed calculation based on deltaTime
         const currentSpeed =
             GAME_CONFIG.ballSpeed[this.difficulty] * (deltaTime / 16);
 
@@ -258,31 +244,28 @@ class Game {
                 this.stats.escaped++;
                 ball.active = false;
             } else {
-                this.drawBall(ball);
-                ball.y += currentSpeed;
+                // Draw ball
+                this.context.fillStyle = ball.color;
+                this.context.beginPath();
+                this.context.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+                this.context.fill();
+                ball.y += currentSpeed; // Apply modified speed
 
+                // Check collision with paddle
                 if (this.checkPaddleCollision(ball)) {
                     ball.active = false;
                     this.stats.burst++;
-                    this.updateScore();
-                    this.spawnPowerUp();
-                    // Integrate with effects system
-                    if (this.particleSystem) {
-                        this.particleSystem.createBurstEffect(
-                            ball.x,
-                            ball.y,
-                            ball.color
-                        );
-                    }
+                    this.particleSystem.createBurstEffect(
+                        ball.x,
+                        ball.y,
+                        ball.color
+                    ); // Add particle effect
                 }
             }
         });
 
-        // 게임 종료 조건 체크
-        if (
-            this.stats.burst + this.stats.escaped >=
-            GAME_CONFIG.maxBalls + 100
-        ) {
+        // Check game end condition
+        if (this.stats.burst + this.stats.escaped >= GAME_CONFIG.maxBalls) {
             this.stop();
             document.getElementById(
                 "output"
@@ -293,9 +276,9 @@ class Game {
         }
     }
 
-    // 패들 충돌 검사를 별도 메서드로 분리
+    // Check paddle collision separately
     checkPaddleCollision(ball) {
-        // 더 정확한 충돌 감지
+        // More accurate collision detection
         const paddleLeft = this.paddle.x;
         const paddleRight =
             this.paddle.x + GAME_CONFIG.paddleWidth[this.difficulty];
@@ -321,66 +304,53 @@ class Game {
         ).innerHTML = `Escaped: ${this.stats.escaped}`;
     }
 
-    // 게임 재시작 기능
+    // Game restart functionality
     restart() {
         this.gameState = GAME_CONFIG.gameStates.PLAYING;
         this.stats = { burst: 0, escaped: 0, steps: 0 };
         this.createBalls();
         this.start();
     }
-
-    loadHighScore() {
-        return parseInt(localStorage.getItem("bubbleBursterHighScore")) || 0;
-    }
-
-    saveHighScore() {
-        localStorage.setItem("bubbleBursterHighScore", this.score);
-    }
-
-    spawnPowerUp() {
-        if (Math.random() < 0.05) {
-            // 5% chance to spawn power-up
-            // Power-up item implementation
-        }
-    }
-
-    updateScore() {
-        const baseScore = GAME_CONFIG.scoreSystem[this.difficulty];
-        this.score +=
-            this.powerUpActive === GAME_CONFIG.powerUps.MULTI_SCORE
-                ? baseScore * 2
-                : baseScore;
-
-        if (this.score > this.highScore) {
-            this.highScore = this.score;
-            this.saveHighScore();
-        }
-    }
 }
 
 // Declare game instance as global variable
 let game;
 
-// Game start function
+// Game initialization function
 window.onload = function () {
     game = new Game();
+    addEffectsToGame(game); // Add particle system
 };
 
 function moveLeft() {
     game.paddle.speed = -GAME_CONFIG.speedX;
 }
-
 function moveRight() {
     game.paddle.speed = GAME_CONFIG.speedX;
 }
-
 function stopMove() {
     game.paddle.speed = 0;
 }
-
 function check(value) {
     if (game) {
         game.difficulty = value;
-        game.reset(); // Restart game when difficulty changes
+        game.reset(); // Restart game on difficulty change
     }
+}
+
+// Method for extending Game class
+function addEffectsToGame(game) {
+    game.particleSystem = new ParticleSystem(game.context);
+
+    // Store original update method
+    const originalUpdate = game.update.bind(game);
+
+    // Extend update method
+    game.update = function (deltaTime) {
+        originalUpdate(deltaTime);
+        if (this.particleSystem) {
+            this.particleSystem.update();
+            this.particleSystem.draw();
+        }
+    };
 }
