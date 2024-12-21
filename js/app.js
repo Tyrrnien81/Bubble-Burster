@@ -15,12 +15,12 @@ const GAME_CONFIG = {
     speedX: 5, // Horizontal movement speed
     ballSpeed: {
         easy: 1, // Reduced speed for better control
-        moderate: 1, // Standard speed
-        hard: 1.1, // Enhanced speed for challenge
+        moderate: 1.2, // Standard speed
+        hard: 2, // Enhanced speed for challenge
     },
 
     // Game mechanics
-    stepInterval: 30, // Interval for step counter updates
+    stepInterval: 60, // Interval for step counter updates
 
     // Game state management
     gameStates: {
@@ -52,6 +52,7 @@ class Game {
         this.lastTime = 0;
         this.frameCount = 0; // Add frame counter
         this.particleSystem = new ParticleSystem(this.context); // Add particle system
+        this.rafId = null; // Store requestAnimationFrame ID
         this.setupEventListeners();
         this.initialize(); // Initialize from constructor
     }
@@ -121,12 +122,17 @@ class Game {
     stop() {
         if (this.isRunning) {
             this.isRunning = false;
-            clearInterval(this.gameLoop);
+            if (this.rafId) {
+                cancelAnimationFrame(this.rafId);
+                this.rafId = null;
+            }
         }
     }
 
     reset() {
         this.stop();
+        this.frameCount = 0; // Reset frame counter
+        this.lastTime = 0; // Reset time reference
         this.stats = { burst: 0, escaped: 0, steps: 0 };
         this.createBalls();
         this.updateStats();
@@ -141,7 +147,7 @@ class Game {
         this.lastTime = currentTime;
 
         this.update(deltaTime);
-        requestAnimationFrame((time) => this.animate(time));
+        this.rafId = requestAnimationFrame((time) => this.animate(time));
     }
 
     update(deltaTime) {
@@ -194,9 +200,9 @@ class Game {
     spawnBalls() {
         // Set spawn rate by difficulty level
         const spawnRate = {
-            easy: 150, // Increase spawn interval
-            moderate: 120,
-            hard: 100,
+            easy: 100, // Increase spawn interval
+            moderate: 80,
+            hard: 50,
         };
 
         const rate = spawnRate[this.difficulty];
