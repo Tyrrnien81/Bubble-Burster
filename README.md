@@ -29,7 +29,7 @@ Bubble Burster is an engaging arcade-style game where players control a paddle t
     -   Real-time score tracking
     -   Burst/escape counter
     -   Steps elapsed counter
-    -   High score system with local storage
+    <!-- -   High score system with local storage -->
 
 ## 🎯 How to Play
 
@@ -44,7 +44,7 @@ Bubble Burster is an engaging arcade-style game where players control a paddle t
 -   HTML5 Canvas for game rendering
 -   Vanilla JavaScript for game logic
 -   CSS3 for styling and animations
--   Local Storage for high score persistence
+<!-- -   Local Storage for high score persistence -->
 
 ## 🎵 Audio Credits
 
